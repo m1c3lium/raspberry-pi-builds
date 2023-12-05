@@ -47,7 +47,7 @@ jobs:
         sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=build-essential,gnupg2,locales,nano,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,parted,wget,curl,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=gnupg2,locales,nano,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
