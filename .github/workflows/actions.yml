@@ -63,6 +63,10 @@ jobs:
         LABEL=RASPIFIRM /boot/firmware vfat rw 0 2
         EOF
 
+        cat << EOF | sudo tee -a /mnt/linux/etc/passwd
+        root:x:0:0:root:/root:/usr/bin/fish
+        EOF
+
         cat << EOF | sudo tee -a /mnt/linux/etc/network/interfaces
         auto lo
         iface lo inet loopback
@@ -158,7 +162,6 @@ jobs:
         /debootstrap/debootstrap --second-stage
 
         chpasswd <<<root:root
-        ln -svf /usr/bin/fish /bin/sh
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
         locale-gen --purge en_US.UTF-8
