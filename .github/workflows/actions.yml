@@ -1,0 +1,178 @@
+name: Generate ISO Pipelines
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install host dependencies
+      env:
+        GZIP: -9
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install debootstrap qemu qemu-user-static
+
+        # Create IMG
+        dd if=/dev/zero of=raw.img bs=512 count=3371008
+        sudo sfdisk raw.img <<EOF
+        label: gpt
+        sector-size: 512
+         : start=        4096, size=      524288, name=RASPIFIRM, type=uefi
+         : start=      528384, size=     2842590, name=RASPIROOT, type=linux
+        EOF
+
+        sudo losetup -Pf raw.img
+        LOOP=$(losetup -j raw.img | grep -o "/dev/loop[0-9]*")
+        echo $ld
+        sudo mkfs.fat -F 32 ${LOOP}p1
+        sudo mkfs.ext4 -U 059e5dd5-2b6a-4509-bbc4-cbe7b357f7dc ${LOOP}p2
+
+        sudo fatlabel ${LOOP}p1 RASPIFIRM
+        sudo e2label ${LOOP}p2 RASPIROOT
+
+        sudo mkdir -p /mnt/linux
+        sudo chown -R $USER:$USER /mnt/linux
+        sudo chmod -R 775 /mnt/linux
+
+        sudo mount ${LOOP}p2 /mnt/linux
+        sudo mkdir -p /mnt/linux/boot/firmware
+        sudo mount ${LOOP}p1 /mnt/linux/boot/firmware
+        sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
+
+        sudo debootstrap \
+            --include=build-essential,gnupg2,locales,nano,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,parted,wget,curl,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --components=main,contrib,non-free,non-free-firmware \
+            --variant=minbase \
+            --arch arm64 \
+            --merged-usr \
+            --foreign \
+            sid \
+            /mnt/linux http://ftp.hk.debian.org/debian
+
+        cat << EOF | sudo tee -a /mnt/linux/etc/fstab
+        # The root file system has fs_passno=1 as per fstab(5) for automatic fsck.
+        LABEL=RASPIROOT / ext4 rw 0 1
+        # All other file systems have fs_passno=2 as per fstab(5) for automatic fsck.
+        LABEL=RASPIFIRM /boot/firmware vfat rw 0 2
+        EOF
+
+        cat << EOF | sudo tee -a /mnt/linux/etc/network/interfaces
+        auto lo
+        iface lo inet loopback
+
+        auto eth0
+        iface eth0 inet dhcp
+
+        allow-hotplug wlan0
+        iface wlan0 inet dhcp
+        EOF
+
+        
+
+        cat << EOF | sudo tee -a /mnt/linux/etc/resolv.conf
+        nameserver 1.1.1.1
+        nameserver 1.0.0.1
+        EOF
+
+        echo 'rpi-debian' | sudo tee -a /mnt/linux/etc/hostname
+        
+        cat << EOF | sudo tee -a /mnt/linux/var/lib/iwd/ScoobyDoo-5G.psk
+        [Security]
+        Passphrase=scooby8827695
+        PreSharedKey=2e8a5b61c669d1c18c5c30ff9bbf831ec5c79e186815841e86e42c22266b59d6
+
+        [Settings]
+        AutoConnect=true
+        EOF
+
+        cat << EOF | sudo tee -a /mnt/linux/etc/hosts
+        127.0.0.1 localhost
+        127.0.1.1 rpi-debian
+
+        ::1     ip6-localhost ip6-loopback
+        fe00::0 ip6-localnet
+        ff02::1 ip6-allnodes
+        ff02::2 ip6-allrouters
+        ff02::3 ip6-allhosts
+        EOF
+
+        sudo mkdir -p /mnt/linux/etc/skel
+        cat << EOF | sudo tee -a /mnt/linux/etc/skel/.profile
+        if [ "$BASH" ]; then
+            if [ -f ~/.bashrc ]; then
+              . ~/.bashrc
+            fi
+        fi
+
+        # set PATH so it includes user's private bin if it exists
+        if [ -d "$HOME/bin" ] ; then
+            PATH="$HOME/bin:$PATH"
+        fi
+
+        # SSH GnuPG Agent
+        export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+        gpgconf --launch gpg-agent
+        EOF
+
+        sudo mkdir -p -m 700 /mnt/linux/root/.ssh
+        cat << EOF | sudo tee -a /mnt/linux/root/.ssh/authorized_keys
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKtAqG6+dsGoKpEJk311Pq0X1fYIrOf5cJDufYOHm+cO (none)
+        EOF
+        sudo chmod 600 /mnt/linux/root/.ssh/authorized_keys
+        sudo mkdir -p /mnt/linux/etc/systemd/system/multi-user.target.requires
+        sudo ln -s /etc/systemd/system/rpi-generate-ssh-host-keys.service /mnt/linux/etc/systemd/system/multi-user.target.requires/rpi-generate-ssh-host-keys.service
+
+        sudo mkdir -p /mnt/linux/etc/systemd/system
+        cat << EOF | sudo tee -a /mnt/linux/etc/systemd/system/rpi-generate-ssh-host-keys.service
+        [Unit]
+        Description=generate SSH host keys
+        ConditionPathExistsGlob=!/etc/ssh/ssh_host_*_key
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/sbin/dpkg-reconfigure -fnoninteractive openssh-server
+
+        [Install]
+        RequiredBy=multi-user.target
+        EOF
+
+        sudo ln -s /usr/lib/systemd/system/iwd.service /mnt/linux/etc/systemd/system/multi-user.target.requires/iwd.service
+
+        sudo mount -t proc proc /mnt/linux/proc
+        sudo mount -t sysfs sysfs /mnt/linux/sys
+        sudo mount -t devtmpfs devtmpfs /mnt/linux/dev
+        sudo mount -t devpts devpts /mnt/linux/dev/pts
+        sudo mount -t tmpfs tmpfs /mnt/linux/tmp
+        
+        sudo cp /usr/bin/qemu-aarch64-static /mnt/linux/usr/bin 
+
+        sudo chroot /mnt/linux <<EOF
+        /debootstrap/debootstrap --second-stage
+        
+        chpasswd <<<root:root
+
+        sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
+        locale-gen --purge en_US.UTF-8
+        
+        sed -i "s|cma=64M ||" /boot/firmware/cmdline.txt
+        sed -i "s|root=${LOOP}p2|root=LABEL=RASPIROOT|" /boot/firmware/cmdline.txt
+        sed -i "s|^#ROOTPART=.*|ROOTPART=LABEL=RASPIROOT|" /etc/default/raspi-firmware
+        sed -i "s|^#EnableNetworkConfiguration|EnableNetworkConfiguration|" /etc/iwd/main.conf
+
+        dpkg-reconfigure raspi-firmware
+        EOF
+
+    - name: upload rpi4b artifact
+      uses: actions/upload-artifact@v3
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        path: raw.img
+        name: raw.img
