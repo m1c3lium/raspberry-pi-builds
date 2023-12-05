@@ -47,7 +47,7 @@ jobs:
         sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=gnupg2,locales,nano,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=zsh,gnupg2,locales,nano,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
@@ -104,6 +104,7 @@ jobs:
         EOF
 
         sudo mkdir -p /mnt/linux/etc/skel
+        sudo touch /mnt/linux/etc/skel/.zshrc
         cat << EOF | sudo tee -a /mnt/linux/etc/skel/.profile
         if [ "$BASH" ]; then
             if [ -f ~/.bashrc ]; then
@@ -155,8 +156,9 @@ jobs:
 
         sudo chroot /mnt/linux <<EOF
         /debootstrap/debootstrap --second-stage
-        
+
         chpasswd <<<root:root
+        ln -svf /bin/zsh /bin/sh
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
         locale-gen --purge en_US.UTF-8
