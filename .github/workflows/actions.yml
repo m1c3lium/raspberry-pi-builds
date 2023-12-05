@@ -47,7 +47,7 @@ jobs:
         sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=zsh,gnupg2,locales,nano,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
@@ -158,7 +158,7 @@ jobs:
         /debootstrap/debootstrap --second-stage
 
         chpasswd <<<root:root
-        ln -svf /bin/zsh /bin/sh
+        ln -svf /usr/bin/fish /bin/sh
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
         locale-gen --purge en_US.UTF-8
