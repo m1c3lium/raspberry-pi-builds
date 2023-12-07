@@ -20,12 +20,12 @@ jobs:
         sudo apt-get -y install debootstrap qemu qemu-user-static
 
         # Create IMG
-        dd if=/dev/zero of=raw.img bs=512 count=3780608
+        dd if=/dev/zero of=raw.img bs=512 count=4190208
         sudo sfdisk raw.img <<EOF
         label: gpt
         sector-size: 512
          : start=        4096, size=      524288, name=RASPIFIRM, type=uefi
-         : start=      528384, size=     3252190, name=RASPIROOT, type=linux
+         : start=      528384, size=     3661790, name=RASPIROOT, type=linux
         EOF
 
         sudo losetup -Pf raw.img
