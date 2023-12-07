@@ -20,12 +20,12 @@ jobs:
         sudo apt-get -y install debootstrap qemu qemu-user-static
 
         # Create IMG
-        dd if=/dev/zero of=raw.img bs=512 count=4190208
+        dd if=/dev/zero of=raw.img bs=512 count=4419618
         sudo sfdisk raw.img <<EOF
         label: gpt
         sector-size: 512
          : start=        4096, size=      524288, name=RASPIFIRM, type=uefi
-         : start=      528384, size=     3661790, name=RASPIROOT, type=linux
+         : start=      528384, size=     3891200, name=RASPIROOT, type=linux
         EOF
 
         sudo losetup -Pf raw.img
@@ -47,7 +47,7 @@ jobs:
         sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=sway,swayimg,mesa-vulkan-drivers,foot,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=chromium,sway,swayimg,mesa-vulkan-drivers,foot,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,systemd,systemd-sysv,bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
