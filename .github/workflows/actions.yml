@@ -172,6 +172,7 @@ jobs:
         sed -i "s|^#EnableNetworkConfiguration|EnableNetworkConfiguration|" /etc/iwd/main.conf
 
         dpkg-reconfigure raspi-firmware
+        cat //debootstrap/debootstrap.log
         EOF
 
     - name: upload rpi4b artifact
@@ -179,5 +180,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        path: raw.img
-        name: raw.img
+        path: /mnt/linux/debootstrap/debootstrap.log
+        name: artifacts
