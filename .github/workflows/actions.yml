@@ -54,7 +54,7 @@ jobs:
             --merged-usr \
             --foreign \
             sid \
-            /mnt/linux http://ftp.hk.debian.org/debian
+            /mnt/linux http://ftp.debian.org/debian
 
         cat << EOF | sudo tee -a /mnt/linux/etc/fstab
         # The root file system has fs_passno=1 as per fstab(5) for automatic fsck.
