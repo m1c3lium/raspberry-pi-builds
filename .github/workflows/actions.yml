@@ -47,7 +47,7 @@ jobs:
         sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=wireplumber,dbus-session-bus,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
@@ -182,5 +182,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        path: /mnt/linux/debootstrap/debootstrap.log
+        path: raw.img
         name: artifacts
