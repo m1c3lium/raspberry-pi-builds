@@ -47,14 +47,14 @@ jobs:
         sudo mkdir -p /mnt/linux/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=wireplumber,dbus-session-bus,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,dbus-user-session,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
             --merged-usr \
             --foreign \
             sid \
-            /mnt/linux http://ftp.debian.org/debian
+            /mnt/linux https://deb.debian.org/debian
 
         cat << EOF | sudo tee -a /mnt/linux/etc/fstab
         # The root file system has fs_passno=1 as per fstab(5) for automatic fsck.
