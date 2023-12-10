@@ -174,10 +174,10 @@ jobs:
         dpkg-reconfigure raspi-firmware
         EOF
 
-        LOG="/mnt/linux/debootstrap/debootstrap.log"
-        [ -f "$LOG" ] && cat $LOG
+        # LOG="/debootstrap/debootstrap.log"
+        # [ -f "$LOG" ] && cat $LOG
 
-    - name: upload rpi4b artifact
+    - name: Upload Image Artifact
       uses: actions/upload-artifact@v3
       env:
         GITHUB_TOKEN: ${{ github.token }}
