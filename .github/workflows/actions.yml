@@ -179,5 +179,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        path: raw.img
+        path: /mnt/linux/debootstrap/debootstrap.log
         name: artifacts
