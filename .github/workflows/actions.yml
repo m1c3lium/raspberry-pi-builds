@@ -85,7 +85,7 @@ jobs:
         fi
         EOF
 
-        mkdir -p /mnt/linux/etc/systemd/system/multi-user.target.requires
+        sudo mkdir -p /mnt/linux/etc/systemd/system/multi-user.target.requires
         sudo ln -s /usr/lib/systemd/system/iwd.service /mnt/linux/etc/systemd/system/multi-user.target.requires/iwd.service
 
         sudo mount -t proc proc /mnt/linux/proc
