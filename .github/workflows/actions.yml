@@ -26,21 +26,21 @@ jobs:
          : start=      528384, size=     4915200, name=RASPIROOT, type=linux
         EOF
 
-        losetup -Pf raw.img
+        sudo losetup -Pf raw.img
         LOOP=$(losetup -j raw.img | grep -o "/dev/loop[0-9]*")
         echo $ld
-        mkfs.fat -F 32 ${LOOP}p1
-        mkfs.ext4 -U 059e5dd5-2b6a-4509-bbc4-cbe7b357f7dc ${LOOP}p2
+        sudo mkfs.fat -F 32 ${LOOP}p1
+        sudo mkfs.ext4 -U 059e5dd5-2b6a-4509-bbc4-cbe7b357f7dc ${LOOP}p2
 
-        fatlabel ${LOOP}p1 RASPIFIRM
-        e2label ${LOOP}p2 RASPIROOT
+        sudo fatlabel ${LOOP}p1 RASPIFIRM
+        sudo e2label ${LOOP}p2 RASPIROOT
 
         ROOTFS=/tmp/rootfs
         mkdir -p $ROOTFS
 
-        mount ${LOOP}p2 $ROOTFS
+        mount -o uid=1000,rw ${LOOP}p2 $ROOTFS
         mkdir -p $ROOTFS/boot/firmware
-        mount ${LOOP}p1 $ROOTFS/boot/firmware
+        mount -o uid=1000,rw ${LOOP}p1 $ROOTFS/boot/firmware
         mkdir -p $ROOTFS/{boot,var/lib/iwd,etc/{network,default}}
 
         debootstrap \
