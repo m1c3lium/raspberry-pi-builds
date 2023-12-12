@@ -83,6 +83,7 @@ jobs:
         if [ -d "$HOME/bin" ] ; then
             PATH="$HOME/bin:$PATH"
         fi
+        EOF
 
         sudo ln -s /usr/lib/systemd/system/iwd.service /mnt/linux/etc/systemd/system/multi-user.target.requires/iwd.service
 
