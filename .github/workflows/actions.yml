@@ -38,9 +38,9 @@ jobs:
         ROOTFS=/tmp/rootfs
         mkdir -p $ROOTFS
 
-        mount -o uid=1000,rw ${LOOP}p2 $ROOTFS
+        sudo mount -o uid=1000,rw ${LOOP}p2 $ROOTFS
         mkdir -p $ROOTFS/boot/firmware
-        mount -o uid=1000,rw ${LOOP}p1 $ROOTFS/boot/firmware
+        sudo mount -o uid=1000,rw ${LOOP}p1 $ROOTFS/boot/firmware
         mkdir -p $ROOTFS/{boot,var/lib/iwd,etc/{network,default}}
 
         debootstrap \
