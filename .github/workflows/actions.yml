@@ -39,11 +39,11 @@ jobs:
         mkdir -p $ROOTFS
 
         sudo mount ${LOOP}p2 $ROOTFS
-        sudo mkdir -p $ROOTFS/boot/firmware
+        mkdir -p $ROOTFS/boot/firmware
         sudo mount ${LOOP}p1 $ROOTFS/boot/firmware
-        sudo mkdir -p $ROOTFS/{boot,var/lib/iwd,etc/{network,default}}
+        mkdir -p $ROOTFS/{boot,var/lib/iwd,etc/{network,default}}
 
-        sudo debootstrap \
+        debootstrap \
             --include=sudo,wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,dbus-user-session,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,kmod,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
