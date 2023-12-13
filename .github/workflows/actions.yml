@@ -55,14 +55,14 @@ jobs:
             sid \
             $ROOTFS https://deb.debian.org/debian
 
-        cat << EOF | tee -a $ROOTFS/etc/fstab
+        cat << EOF | sudo tee -a $ROOTFS/etc/fstab
         # The root file system has fs_passno=1 as per fstab(5) for automatic fsck.
         LABEL=RASPIROOT / ext4 rw 0 1
         # All other file systems have fs_passno=2 as per fstab(5) for automatic fsck.
         LABEL=RASPIFIRM /boot/firmware vfat rw 0 2
         EOF
 
-        cat << EOF | tee -a $ROOTFS/var/lib/iwd/ScoobyDoo-5G.psk
+        cat << EOF | sudo tee -a $ROOTFS/var/lib/iwd/ScoobyDoo-5G.psk
         [Security]
         Passphrase=scooby8827695
         PreSharedKey=2e8a5b61c669d1c18c5c30ff9bbf831ec5c79e186815841e86e42c22266b59d6
@@ -71,9 +71,8 @@ jobs:
         AutoConnect=true
         EOF
 
-        mkdir -p $ROOTFS/etc/skel
-        touch $ROOTFS/etc/skel/.zshrc
-        cat << EOF | tee -a $ROOTFS/etc/skel/.profile
+        sudo mkdir -p $ROOTFS/etc/skel
+        cat << EOF | sudo tee -a $ROOTFS/etc/skel/.profile
         if [ "$BASH" ]; then
             if [ -f ~/.bashrc ]; then
               . ~/.bashrc
@@ -92,7 +91,7 @@ jobs:
         sudo mount -t devpts devpts $ROOTFS/dev/pts
         sudo mount -t tmpfs tmpfs $ROOTFS/tmp
         
-        cp /usr/bin/qemu-aarch64-static $ROOTFS/usr/bin 
+        sudo cp /usr/bin/qemu-aarch64-static $ROOTFS/usr/bin 
 
         sudo chroot $ROOTFS <<EOF
         /debootstrap/debootstrap --second-stage
