@@ -71,14 +71,6 @@ jobs:
         AutoConnect=true
         EOF
 
-        sudo mkdir -p $ROOTFS/etc/skel
-        cat << EOF | sudo tee -a $ROOTFS/etc/skel/.profile
-        if [ "$BASH" ]; then
-            if [ -f ~/.bashrc ]; then
-              . ~/.bashrc
-            fi
-        fi
-
         # set PATH so it includes user's private bin if it exists
         if [ -d "$HOME/bin" ] ; then
             PATH="$HOME/bin:$PATH"
@@ -100,8 +92,11 @@ jobs:
         useradd -m debian
         usermod -G sudo,video,audio debian
         chpasswd <<<debian:debian
+        chsh root -s /usr/bin/fish
+        chsh debian -s /usr/bin/fish
         
         # chpasswd <<<root:root
+        echo -e 'nameserver 208.67.222.222\nnameserver 208.67.220.220' > /etc/resolv.conf
         systemctl enable iwd
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
