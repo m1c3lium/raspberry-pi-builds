@@ -98,11 +98,11 @@ jobs:
 
         
         useradd -m debian
-        usermod -G sudo,video,audio,www debian
+        usermod -G sudo,video,audio debian
         chpasswd <<<debian:debian
         
         # chpasswd <<<root:root
-        ln -s /usr/lib/systemd/system/iwd.service /etc/systemd/system/multi-user.target.requires/iwd.service
+        ln -s /lib/systemd/system/iwd.service /etc/systemd/system/multi-user.target.requires/iwd.service
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
         locale-gen --purge en_US.UTF-8
