@@ -97,11 +97,11 @@ jobs:
         /debootstrap/debootstrap --second-stage
 
         
-        adduser -m debian
+        useradd -m debian
         usermod -G sudo,video,audio,www debian
         chpasswd <<<debian:debian
         
-        chpasswd <<<root:root
+        # chpasswd <<<root:root
         ln -s /usr/lib/systemd/system/iwd.service /etc/systemd/system/multi-user.target.requires/iwd.service
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
