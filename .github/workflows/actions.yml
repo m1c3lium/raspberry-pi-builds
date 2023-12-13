@@ -102,7 +102,7 @@ jobs:
         chpasswd <<<debian:debian
         
         # chpasswd <<<root:root
-        ln -s /lib/systemd/system/iwd.service /etc/systemd/system/multi-user.target.requires/iwd.service
+        systemctl enable iwd
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
         locale-gen --purge en_US.UTF-8
