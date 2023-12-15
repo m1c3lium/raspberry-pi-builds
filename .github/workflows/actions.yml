@@ -71,12 +71,6 @@ jobs:
         AutoConnect=true
         EOF
 
-        # set PATH so it includes user's private bin if it exists
-        if [ -d "$HOME/bin" ] ; then
-            PATH="$HOME/bin:$PATH"
-        fi
-        EOF
-
         sudo mount -t proc proc $ROOTFS/proc
         sudo mount -t sysfs sysfs $ROOTFS/sys
         sudo mount -t devtmpfs devtmpfs $ROOTFS/dev
@@ -97,6 +91,7 @@ jobs:
         
         # chpasswd <<<root:root
         echo -e 'nameserver 208.67.222.222\nnameserver 208.67.220.220' > /etc/resolv.conf
+        hostnamectl set-hostname debian.home.local
         systemctl enable iwd
 
         sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
