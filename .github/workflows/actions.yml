@@ -46,7 +46,7 @@ jobs:
         mkdir -p $ROOTFS/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=sudo,wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,dbus-user-session,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,kmod,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=sudo,apt-utils,wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,dbus-user-session,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,kmod,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
@@ -82,7 +82,16 @@ jobs:
         sudo chroot $ROOTFS <<EOF
         /debootstrap/debootstrap --second-stage
 
+        sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
+        locale-gen --purge en_US.UTF-8
         
+        sed -i "s|cma=64M ||" /boot/firmware/cmdline.txt
+        sed -i "s|root=${LOOP}p2|root=LABEL=RASPIROOT|" /boot/firmware/cmdline.txt
+        sed -i "s|^#ROOTPART=.*|ROOTPART=LABEL=RASPIROOT|" /etc/default/raspi-firmware
+        sed -i "s|^#EnableNetworkConfiguration|EnableNetworkConfiguration|" /etc/iwd/main.conf
+
+        dpkg-reconfigure raspi-firmware
+
         useradd -m debian
         usermod -G sudo,video,audio debian
         chpasswd <<<debian:debian
@@ -93,16 +102,6 @@ jobs:
         echo -e 'nameserver 208.67.222.222\nnameserver 208.67.220.220' > /etc/resolv.conf
         hostnamectl set-hostname debian.home.local
         systemctl enable iwd
-
-        sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
-        locale-gen --purge en_US.UTF-8
-        
-        sed -i "s|cma=64M ||" /boot/firmware/cmdline.txt
-        sed -i "s|root=${LOOP}p2|root=LABEL=RASPIROOT|" /boot/firmware/cmdline.txt
-        sed -i "s|^#ROOTPART=.*|ROOTPART=LABEL=RASPIROOT|" /etc/default/raspi-firmware
-        sed -i "s|^#EnableNetworkConfiguration|EnableNetworkConfiguration|" /etc/iwd/main.conf
-
-        dpkg-reconfigure raspi-firmware
         EOF
 
         # LOG="/debootstrap/debootstrap.log"
