@@ -46,7 +46,7 @@ jobs:
         mkdir -p $ROOTFS/{boot,var/lib/iwd,etc/{network,default}}
 
         sudo debootstrap \
-            --include=sudo,apt-utils,wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,dbus-user-session,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,kmod,raspi-firmware,firmware-brcm80211,bluez-firmware \
+            --include=sudo,apt-utils,minidlna,qbittorrent-nox,wireplumber,pipewire-alsa,mesa-vulkan-drivers,build-essential,fish,gpg,gpgconf,gpg-agent,locales,vim,dbus,dbus-user-session,systemd,systemd-sysv,bluetooth,libspa-0.2-bluetooth,ca-certificates,dosfstools,systemd-timesyncd,ssh,fdisk,wget,iwd,linux-image-arm64,kmod,raspi-firmware,firmware-brcm80211,bluez-firmware \
             --components=main,contrib,non-free,non-free-firmware \
             --variant=minbase \
             --arch arm64 \
@@ -102,6 +102,8 @@ jobs:
         echo -e 'nameserver 208.67.222.222\nnameserver 208.67.220.220' > /etc/resolv.conf
         hostnamectl set-hostname debian.home.local
         systemctl enable iwd
+        systemctl enable minidlna
+        systemctl enable qbittorrent-nox@root
         EOF
 
         # LOG="/debootstrap/debootstrap.log"
