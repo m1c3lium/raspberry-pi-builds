@@ -84,6 +84,8 @@ jobs:
 
         # sed -i -e "s|^# en_US.UTF-8 UTF-8|en_US.UTF-8 UTF-8|" /etc/locale.gen
         # locale-gen --purge en_US.UTF-8
+
+        sed "1 s|$| $(hostname -f)|" /etc/hosts
         
         sed -i "s|cma=64M ||" /boot/firmware/cmdline.txt
         sed -i "s|root=${LOOP}p2|root=LABEL=RASPIROOT|" /boot/firmware/cmdline.txt
