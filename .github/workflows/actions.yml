@@ -95,6 +95,7 @@ jobs:
         sed -i "s|^#EnableNetworkConfiguration|EnableNetworkConfiguration|" /etc/iwd/main.conf
 
         dpkg-reconfigure raspi-firmware
+        sed -e "s|#PermitRootLogin yes|PermitRootLogin yes|" /etc/ssh/sshd_config
         chpasswd <<<root:root
 
         mkdir -p /shared
