@@ -97,7 +97,8 @@ jobs:
         sed -i "s|^#EnableNetworkConfiguration|EnableNetworkConfiguration|" /etc/iwd/main.conf
 
         dpkg-reconfigure raspi-firmware
-        sed -e "s|#PermitRootLogin.*|PermitRootLogin yes|" /etc/ssh/sshd_config
+        sed -i "s|.*PermitRootLogin.*|PermitRootLogin yes|g" /etc/ssh/sshd_config
+        sed -i "s|.*PasswordAuthentication.*|PasswordAuthentication yes|g" /etc/ssh/sshd_config
         chpasswd <<<root:root
 
         mkdir -p /shared
